@@ -8,6 +8,14 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
+ul li {
+    margin: 5px;
+}
+
+li input,label{
+    cursor: pointer;
+}
+
 .quiz-container {
     box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);
     background-color: #d387ab;
@@ -26,6 +34,7 @@ h2{
 }
 
 button {
+    cursor: pointer;
     font-weight: bold;
     font-size: 20px;
     display: block;
