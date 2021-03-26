@@ -4,6 +4,7 @@ const quizData = [{
     "b": "Combball",
     "c": "Handball",
     "d": "Touchdown",
+    "answer": "",
     "correct": "a"
 },
 {
@@ -12,6 +13,7 @@ const quizData = [{
     "b": "Canada",
     "c": "China",
     "d": "United States",
+    "answer": "",
     "correct": "a"
 },
 {
@@ -20,6 +22,7 @@ const quizData = [{
     "b": "Carbonyl",
     "c": "Alkyl",
     "d": "Aldehyde",
+    "answer": "",
     "correct": "a"
 },
 {
@@ -28,6 +31,7 @@ const quizData = [{
     "b": "4",
     "c": "7",
     "d": "2",
+    "answer": "",
     "correct": "a"
 },
 {
@@ -36,16 +40,14 @@ const quizData = [{
     "b": "Psychology",
     "c": "Phrenology",
     "d": "Physical Therapy",
+    "answer": "",
     "correct": "a"
 }
 ];
 
-
 let currentQuest = 0;
 let currentQuiz = 0;
 let score = 0;
-
-
 
 const questElem = document.getElementById('question');
 const sbmtButt = document.getElementById('submit')
@@ -55,6 +57,14 @@ const c_text = document.getElementById("c_text");
 const d_text = document.getElementById("d_text");
 const answerElems = document.getElementsByName('answer');
 const mainContElem = document.getElementById('main-container');
+const quizContElem = document.getElementById('quiz-container');
+
+
+const COLORS = {
+    correct: '#0fd64fb5',
+    incorrect: '#e50914ab'
+};
+
 
 
 const answerKeys = ["a", "b", "c", "d"];
@@ -67,11 +77,13 @@ for (let i = 0; i < quizData.length; i++) {
 }
 
 
+let aResults = yourAnswers.reverse();
+let aCorrects = correctAnswers.reverse();
+
 loadQuiz();
 
 
 function loadQuiz() {
-
     const currentQuizData = quizData[currentQuest]
     questElem.innerHTML = currentQuizData.question;
     a_text.innerHTML = currentQuizData.a
@@ -79,11 +91,9 @@ function loadQuiz() {
     c_text.innerHTML = currentQuizData.c
     d_text.innerHTML = currentQuizData.d
     currentQuest++;
-
 }
 
 function getSelectedItem() {
-
     let answer = undefined;
     answerElems.forEach((answerElem) => {
         if (answerElem.checked) {
@@ -91,57 +101,69 @@ function getSelectedItem() {
             yourAnswers.push(answerElem.id);
         }
     });
-
     return answer;
 }
 
-function _LiGenerator() {
-    let answerElement = document.createElement("li");
+var iIterator = 0;
+
+
+function _LiGenerator(oCurrentQuizData, sKey) {
+    var answerElement = document.createElement("li");
     let inputElement = document.createElement("input");
     inputElement.setAttribute("type", "radio");
     inputElement.setAttribute("disabled", "true");
-    inputElement.setAttribute("id", "a");
-    inputElement.setAttribute("name", "answer");
+    inputElement.setAttribute("id", sKey);
+    inputElement.setAttribute("name", "answer" + String(iIterator));
     inputElement.setAttribute("class", "answer");
     let labelElement = document.createElement("label");
-
-    
-
-    labelElement.setAttribute("id", "a_text");
-    labelElement.setAttribute("for", "a");
-    labelElement.innerHTML = "Question";
+    labelElement.innerHTML = oCurrentQuizData[sKey];
+    labelElement.setAttribute("id", sKey + "_text");
+    labelElement.setAttribute("for", sKey);
+    if (sKey === oCurrentQuizData.correct) {
+        answerElement.style.background = COLORS.correct;
+    }
+    if (sKey === oCurrentQuizData.answer && oCurrentQuizData.answer !== oCurrentQuizData.correct) {
+        answerElement.style.background = COLORS.incorrect;
+    }
+    if (sKey === oCurrentQuizData.answer) {
+        console.log(`sKey - ${sKey}`);
+        console.log(`oCurrentQuizData.answer - ${oCurrentQuizData.answer}`);
+        inputElement.checked = true;
+    }
     answerElement.appendChild(inputElement);
     answerElement.appendChild(labelElement);
-    answersList.appendChild(answerElement);
+    return answerElement;
 }
 
-
 function showResults() {
-    for (let i = quizData.length - 2; i >= 0; i--) {
-        let questionHeader = document.createElement("h2");
+    for (let i = 0; i < quizData.length; i++) {
+        quizData[i].answer = aResults[i];
+        let questionHeader = document.createElement("h4");
         questionHeader.innerHTML = quizData[i].question;
         questionHeader.setAttribute("id", "question");
+        questionHeader.setAttribute("class", "question");
         let quizContainerDiv = document.createElement("div");
         quizContainerDiv.setAttribute("class", "quiz-container");
-        let answersList = document.createElement("ul");
+        var answersList = document.createElement("ul");
 
         var oCurrentQuizData = quizData[i];
-        answerKeys.reduce(function (sAcc, sKey) {
-            var sDomNodeLi = 
-        }.bind(this), "")
-
-        for (let i = 0; i < quizData.length - 1; i++) {
-
-        }
-
+        ++iIterator;
+        answerKeys.forEach(function (sKey) {
+            var oDomLi = this._LiGenerator(oCurrentQuizData, sKey);
+            answersList.append(oDomLi);
+        })
         mainContElem.appendChild(questionHeader);
         mainContElem.appendChild(quizContainerDiv);
         quizContainerDiv.appendChild(answersList);
     }
+    let resultsElement = document.createElement("h2");
+    resultsElement.innerHTML = `Your score: ${score}`;
+    resultsElement.setAttribute("id", "results");
+    resultsElement.setAttribute("class", "results");
+    mainContElem.appendChild(resultsElement);
 }
 
 sbmtButt.addEventListener('click', () => {
-
     const answer = getSelectedItem();
     if (answer) {
         if (answer == quizData[currentQuiz].correct)
@@ -152,23 +174,18 @@ sbmtButt.addEventListener('click', () => {
             for (i = 0; i < answerElems.length; i++) {
                 answerElems[i].checked = false;
             }
-
         } else {
+            quizContElem.parentNode.removeChild(quizContElem);
+            questElem.parentNode.removeChild(questElem);
             alert(`You finished! Your score is ${score}.`);
             alert(`Your answers: ${yourAnswers}. Correct answers: ${correctAnswers}.`);
             for (i = 0; i < answerElems.length; i++) {
                 answerElems[i].checked = false;
             }
-            //ToDo after quiz
             sbmtButt.parentNode.removeChild(sbmtButt);
             for (let i = 0; i < answerElems.length; i++)
                 answerElems[i].disabled = true;
-
             showResults();
-            // yourAnswers = [];
-            // currentQuest = 0;
-            // currentQuiz = 0;
-            // loadQuiz();
         }
     }
 });
